@@ -34,28 +34,25 @@ public class Deadline {
 
     //<<< Clean Arch / Port Method
     public static void schedule(OrderCreated orderCreated) {
-        //implement business logic here:
-
-        /** Example 1:  new item 
         Deadline deadline = new Deadline();
-        repository().save(deadline);
+        deadline.setOrderId(orderCreated.getId());
+        deadline.setStartedTime(new Date(orderCreated.getTimestamp()));
 
-        */
-
-        /** Example 2:  finding and process
+        Date deadlineDate = new Date(deadline.getStartedTime().getTime() + deadlineDurationInMS);
+        deadline.setDeadline(deadlineDate);
         
-
-        repository().findById(orderCreated.get???()).ifPresent(deadline->{
+        repository().save(deadline);
+}
+    public static void sendDeadlineEvents(){
+        repository().findAll().forEach(deadline ->{
+            Date now = new Date();
             
-            deadline // do something
-            repository().save(deadline);
-
-
-         });
-        */
-
+            if(now.after(deadline.getDeadline())){
+                new DeadlineReached(deadline).publishAfterCommit();
+                repository().delete(deadline);
+            }
+        });
     }
-    //>>> Clean Arch / Port Method
 
 }
 //>>> DDD / Aggregate Root

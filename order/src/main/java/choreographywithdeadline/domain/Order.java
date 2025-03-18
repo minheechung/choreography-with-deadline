@@ -33,6 +33,19 @@ public class Order {
 
     private String status;
 
+
+    @PostPersist
+    public void onPostPersist(){
+        setStatus(status:"PENDING");
+    
+    }
+    @PostPersist
+    public void onPostPersist(){
+        OrderCreated orderCreated = new OrderCreated(this);
+        orderCreated.publishAfterCommit();
+    }
+
+
     public static OrderRepository repository() {
         OrderRepository orderRepository = OrderApplication.applicationContext.getBean(
             OrderRepository.class
@@ -42,22 +55,14 @@ public class Order {
 
     //<<< Clean Arch / Port Method
     public static void approve(StockDecreased stockDecreased) {
-        //implement business logic here:
-
-        /** Example 1:  new item 
-        Order order = new Order();
-        repository().save(order);
-
-        */
-
-        /** Example 2:  finding and process
         
-
-        repository().findById(stockDecreased.get???()).ifPresent(order->{
+        repository().findById(stockDecreased.getOrderId()
+        ).ifPresent(order->{
             
-            order // do something
+            order.setStatus(status:"Approved"); // do something
             repository().save(order);
-
+            OrderPlaced orderPlaced =new OrderPlaced(order);
+            orderPlaced.publishAfterCommit();
 
          });
         */
